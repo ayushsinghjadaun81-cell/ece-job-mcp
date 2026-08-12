@@ -65,7 +65,21 @@ def server_status() -> dict:
         "status": "online",
         "tools": ["search_jobs", "server_status"],
     }
+from mcp.server.transport_security import TransportSecuritySettings
+
+security = TransportSecuritySettings(
+    allowed_hosts=[
+        "ece-job-mcp.onrender.com",
+        "ece-job-mcp.onrender.com:*",
+    ],
+    allowed_origins=[
+        "https://claude.ai",
+    ],
+)
+
+app = mcp.streamable_http_app(
+    transport_security=security
+)
 
 
-app = mcp.streamable_http_app()
     

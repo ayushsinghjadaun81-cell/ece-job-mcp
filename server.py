@@ -1,9 +1,22 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
+
+security = TransportSecuritySettings(
+    enable_dns_rebinding_protection=True,
+    allowed_hosts=[
+        "ece-job-mcp.onrender.com",
+        "ece-job-mcp.onrender.com:*",
+    ],
+    allowed_origins=[
+        "https://claude.ai",
+    ],
+)
 
 mcp = FastMCP(
     "ECE Job Tools",
     stateless_http=True,
     json_response=True,
+    transport_security=security,
 )
 
 # Version 1 deliberately uses a tiny in-memory dataset.

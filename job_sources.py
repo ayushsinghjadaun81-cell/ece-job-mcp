@@ -1,4 +1,5 @@
 import os
+import re
 import httpx
 
 
@@ -63,7 +64,12 @@ NEGATIVE_KEYWORDS = {
     "business analyst": 4,
     "technical support": 3,
 }
+def contains_keyword(text: str, keyword: str) -> bool:
+    """Check for a whole word or phrase, avoiding accidental substring matches."""
 
+    pattern = rf"\b{re.escape(keyword)}\b"
+
+    return re.search(pattern, text) is not None
 
 def score_job(job: dict) -> int:
     """
@@ -84,12 +90,12 @@ def score_job(job: dict) -> int:
     score = 0
 
     for keyword, points in POSITIVE_KEYWORDS.items():
-        if keyword in text:
-            score += points
+    if contains_keyword(text, keyword):
+        score += points
 
-    for keyword, points in NEGATIVE_KEYWORDS.items():
-        if keyword in text:
-            score -= points
+for keyword, points in NEGATIVE_KEYWORDS.items():
+    if contains_keyword(text, keyword):
+        score -= points
 
     # The job title deserves extra importance.
     title = str(job.get("title", "")).lower()
@@ -113,7 +119,59 @@ def score_job(job: dict) -> int:
         score += 5
 
     return score
+def score_eligibility(job: dict) -> int:
+    """
+    Estimate whether the job is suitable for a diploma/fresher candidate.
+    """
 
+    text = " ".join(
+        str(job.get(field, ""))
+        for field in [
+            "title",
+            "company",
+            "snippet",
+        ]
+    ).lower()
+
+    score = 0
+
+    positive_signals = {
+        "fresher": 5,
+        "freshers": 5,
+        "entry level": 5,
+        "entry-level": 5,
+        "junior": 4,
+        "trainee": 5,
+        "graduate trainee": 6,
+        "graduate engineer trainee": 6,
+        "intern": 4,
+        "internship": 4,
+        "0-1 years": 5,
+        "0-2 years": 5,
+        "diploma": 5,
+    }
+
+    negative_signals = {
+        "senior": 6,
+        "staff": 8,
+        "principal": 8,
+        "lead": 6,
+        "manager": 7,
+        "director": 8,
+        "5+ years": 7,
+        "7+ years": 8,
+        "10+ years": 8,
+    }
+
+    for keyword, points in positive_signals.items():
+    if contains_keyword(text, keyword):
+        score += points
+
+for keyword, points in negative_signals.items():
+    if contains_keyword(text, keyword):
+        score -= points
+
+    return score
 
 async def search_jooble(
     keywords: str,
@@ -190,26 +248,34 @@ async def search_multiple_jooble(
         unique_jobs.append(job)
 
     # Score every unique job.
-    scored_jobs = []
+scored_jobs = []
 
-    for job in unique_jobs:
-        score = score_job(job)
+for job in unique_jobs:
+    relevance_score = score_job(job)
+    eligibility_score = score_eligibility(job)
 
-        job["relevance_score"] = score
-
-        scored_jobs.append(job)
-
-    # Keep only jobs with meaningful ECE relevance.
-    relevant_jobs = [
-        job
-        for job in scored_jobs
-        if job["relevance_score"] >= 5
-    ]
-
-    # Highest relevance first.
-    relevant_jobs.sort(
-        key=lambda job: job["relevance_score"],
-        reverse=True,
+    job["relevance_score"] = relevance_score
+    job["eligibility_score"] = eligibility_score
+    job["total_score"] = (
+        relevance_score + eligibility_score
     )
 
-    return relevant_jobs
+    scored_jobs.append(job)
+
+# Keep only jobs with meaningful ECE relevance.
+relevant_jobs = [
+    job
+    for job in scored_jobs
+    if (
+        job["relevance_score"] >= 5
+        and job["eligibility_score"] >= 0
+    )
+]
+
+# Highest total score first.
+relevant_jobs.sort(
+    key=lambda job: job["total_score"],
+    reverse=True,
+)
+
+return relevant_jobs

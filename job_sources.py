@@ -29,3 +29,49 @@ async def search_jooble(
     data = response.json()
 
     return data.get("jobs", [])
+
+
+async def search_multiple_jooble(
+    keywords: list[str],
+    location: str = "India",
+) -> list[dict]:
+    """Search Jooble using multiple focused queries and remove duplicates."""
+
+    all_jobs = []
+
+    for keyword in keywords:
+        keyword = keyword.strip()
+
+        if not keyword:
+            continue
+
+        jobs = await search_jooble(
+            keywords=keyword,
+            location=location,
+        )
+
+        all_jobs.extend(jobs)
+
+    # Remove duplicate jobs.
+    unique_jobs = []
+    seen = set()
+
+    for job in all_jobs:
+        job_id = (
+            job.get("id")
+            or job.get("link")
+            or job.get("url")
+            or (
+                job.get("title", ""),
+                job.get("company", ""),
+                job.get("location", ""),
+            )
+        )
+
+        if job_id in seen:
+            continue
+
+        seen.add(job_id)
+        unique_jobs.append(job)
+
+    return unique_jobs

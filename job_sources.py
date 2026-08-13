@@ -164,12 +164,12 @@ def score_eligibility(job: dict) -> int:
     }
 
     for keyword, points in positive_signals.items():
-    if contains_keyword(text, keyword):
-        score += points
+        if contains_keyword(text, keyword):
+            score += points
 
-for keyword, points in negative_signals.items():
-    if contains_keyword(text, keyword):
-        score -= points
+    for keyword, points in negative_signals.items():
+        if contains_keyword(text, keyword):
+            score -= points
 
     return score
 

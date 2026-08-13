@@ -257,25 +257,25 @@ async def search_multiple_jooble(
         job["relevance_score"] = relevance_score
         job["eligibility_score"] = eligibility_score
         job["total_score"] = (
-        relevance_score + eligibility_score
-    )
+            relevance_score + eligibility_score
+        )
 
-    scored_jobs.append(job)
+        scored_jobs.append(job)
 
-# Keep only jobs with meaningful ECE relevance.
+    # Keep only jobs with meaningful ECE relevance.
     relevant_jobs = [
         job
         for job in scored_jobs
         if (
-        job["relevance_score"] >= 5
-        and job["eligibility_score"] >= 0
+            job["relevance_score"] >= 5
+            and job["eligibility_score"] >= 0
+        )
+    ]
+
+    # Highest total score first.
+    relevant_jobs.sort(
+        key=lambda job: job["total_score"],
+        reverse=True,
     )
-]
 
-# Highest total score first.
-relevant_jobs.sort(
-    key=lambda job: job["total_score"],
-    reverse=True,
-)
-
-return relevant_jobs
+    return relevant_jobs

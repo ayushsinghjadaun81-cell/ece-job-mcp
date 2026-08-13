@@ -8,7 +8,6 @@ JOOBLE_API_KEY = os.getenv("JOOBLE_API_KEY")
 
 # Strong signals for the kinds of ECE jobs we want.
 POSITIVE_KEYWORDS = {
-    "embedded": 5,
     "firmware": 5,
     "microcontroller": 5,
     "embedded systems": 5,

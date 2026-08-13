@@ -93,7 +93,7 @@ def score_job(job: dict) -> int:
     if contains_keyword(text, keyword):
         score += points
 
-for keyword, points in NEGATIVE_KEYWORDS.items():
+    for keyword, points in NEGATIVE_KEYWORDS.items():
     if contains_keyword(text, keyword):
         score -= points
 

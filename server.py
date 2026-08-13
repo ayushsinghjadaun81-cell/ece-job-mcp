@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
-from job_sources import search_jooble
+from job_sources import search_multiple_jooble
 security = TransportSecuritySettings(
     enable_dns_rebinding_protection=True,
     allowed_hosts=[
@@ -47,15 +47,12 @@ async def search_jobs(
     keywords: list[str],
     location: str = "India",
 ) -> list[dict]:
-    """Search real jobs using Jooble."""
+    """Search real jobs using multiple focused Jooble queries."""
 
-    query = " ".join(keywords)
-
-    return await search_jooble(
-        keywords=query,
+    return await search_multiple_jooble(
+        keywords=keywords,
         location=location,
-    ) 
-
+    )
 
 @mcp.tool()
 def server_status() -> dict:

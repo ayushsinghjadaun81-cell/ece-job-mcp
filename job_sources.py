@@ -90,12 +90,12 @@ def score_job(job: dict) -> int:
     score = 0
 
     for keyword, points in POSITIVE_KEYWORDS.items():
-    if contains_keyword(text, keyword):
-        score += points
+        if contains_keyword(text, keyword):
+            score += points
 
     for keyword, points in NEGATIVE_KEYWORDS.items():
-    if contains_keyword(text, keyword):
-        score -= points
+        if contains_keyword(text, keyword):
+            score -= points
 
     # The job title deserves extra importance.
     title = str(job.get("title", "")).lower()

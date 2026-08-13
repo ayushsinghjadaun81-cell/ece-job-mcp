@@ -1,6 +1,7 @@
 import os
 import re
 import httpx
+import hashlib
 
 
 JOOBLE_API_KEY = os.getenv("JOOBLE_API_KEY")
@@ -255,6 +256,19 @@ async def search_multiple_jooble(
             keywords=keyword,
             location=location,
         )
+
+        for job in jobs:
+            raw_text = " | ".join([
+                str(job.get("title", "")),
+                str(job.get("company", "")),
+                str(job.get("location", "")),
+                str(job.get("snippet", "")),
+            ])
+
+            job["_debug_search_keyword"] = keyword
+            job["_debug_signature"] = hashlib.sha256(
+                raw_text.encode("utf-8")
+            ).hexdigest()
 
         all_jobs.extend(jobs)
 

@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
-
+from job_sources import search_jooble
 security = TransportSecuritySettings(
     enable_dns_rebinding_protection=True,
     allowed_hosts=[
@@ -43,30 +43,18 @@ JOBS = [
 
 
 @mcp.tool()
-def search_jobs(
+async def search_jobs(
     keywords: list[str],
     location: str = "India",
 ) -> list[dict]:
-    """Search the demo job dataset by keywords and location."""
-    wanted = {k.strip().lower() for k in keywords if k.strip()}
-    loc = location.lower()
+    """Search real jobs using Jooble."""
 
-    results = []
-    for job in JOBS:
-        searchable = " ".join([
-            job["title"],
-            job["company"],
-            job["location"],
-            *job["skills"],
-        ]).lower()
+    query = " ".join(keywords)
 
-        keyword_match = not wanted or any(k in searchable for k in wanted)
-        location_match = not loc or loc in job["location"].lower()
-
-        if keyword_match and location_match:
-            results.append(job)
-
-    return results
+    return await search_jooble(
+        keywords=query,
+        location=location,
+    ) 
 
 
 @mcp.tool()

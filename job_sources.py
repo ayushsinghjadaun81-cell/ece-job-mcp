@@ -69,7 +69,40 @@ def contains_keyword(text: str, keyword: str) -> bool:
     pattern = rf"\b{re.escape(keyword)}\b"
 
     return re.search(pattern, text) is not None
+def has_strong_ece_signal(job: dict) -> bool:
+    """Check whether a job contains a genuine ECE/embedded technical signal."""
 
+    text = " ".join(
+        str(job.get(field, ""))
+        for field in [
+            "title",
+            "snippet",
+        ]
+    ).lower()
+
+    strong_signals = [
+        "firmware",
+        "microcontroller",
+        "embedded software",
+        "embedded systems",
+        "pcb design",
+        "circuit design",
+        "stm32",
+        "esp32",
+        "rtos",
+        "freertos",
+        "fpga",
+        "verilog",
+        "vhdl",
+        "arduino",
+        "iot",
+        "electronics engineer",
+    ]
+
+    return any(
+        contains_keyword(text, signal)
+        for signal in strong_signals
+    )
 def score_job(job: dict) -> int:
     """
     Score a job based on its title, company and description.
@@ -266,7 +299,8 @@ async def search_multiple_jooble(
         job
         for job in scored_jobs
         if (
-            job["relevance_score"] >= 5
+            has_strong_ece_signal(job)
+            and job["relevance_score"] >= 5
             and job["eligibility_score"] >= 0
         )
     ]

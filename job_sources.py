@@ -273,23 +273,23 @@ async def search_multiple_jooble(
         all_jobs.extend(jobs)
 
      # Remove duplicate jobs.
-unique_jobs = []
-seen = set()
+     unique_jobs = []
+     seen = set()
 
-for job in all_jobs:
-    title = " ".join(
+     for job in all_jobs:
+         title = " ".join(
         str(job.get("title", "")).lower().split()
     )
 
-    company = " ".join(
+         company = " ".join(
         str(job.get("company", "")).lower().split()
     )
 
-    location = " ".join(
+         location = " ".join(
         str(job.get("location", "")).lower().split()
     )
 
-    snippet = " ".join(
+         snippet = " ".join(
         str(job.get("snippet", "")).lower().split()
     )
 

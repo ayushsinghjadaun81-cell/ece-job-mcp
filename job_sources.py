@@ -231,7 +231,6 @@ async def search_jooble(
     response.raise_for_status()
 
     data = response.json()
-
     return data.get("jobs", [])
 
 
@@ -273,25 +272,25 @@ async def search_multiple_jooble(
         all_jobs.extend(jobs)
 
     # Remove duplicate jobs.
-unique_jobs = []
-seen = set()
+    unique_jobs = []
+    seen = set()
 
-for job in all_jobs:
-    job_id = (
-        job.get("id")
-        or job.get("link")
-        or (
-            job.get("title", ""),
-            job.get("company", ""),
-            job.get("location", ""),
+    for job in all_jobs:
+        job_id = (
+            job.get("id")
+            or job.get("link")
+            or (
+                job.get("title", ""),
+                job.get("company", ""),
+                job.get("location", ""),
+            )
         )
-    )
 
-    if job_id in seen:
-        continue
+        if job_id in seen:
+            continue
 
-    seen.add(job_id)
-    unique_jobs.append(job)
+        seen.add(job_id)
+        unique_jobs.append(job)
 
     # Score every unique job.
     scored_jobs = []
@@ -326,5 +325,6 @@ for job in all_jobs:
     )
 
     return relevant_jobs
+
 
      

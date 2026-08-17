@@ -273,38 +273,25 @@ async def search_multiple_jooble(
         all_jobs.extend(jobs)
 
     # Remove duplicate jobs.
-    unique_jobs = []
-    seen = set()
+unique_jobs = []
+seen = set()
 
-    for job in all_jobs:
-        title = " ".join(
-            str(job.get("title", "")).lower().split()
+for job in all_jobs:
+    job_id = (
+        job.get("id")
+        or job.get("link")
+        or (
+            job.get("title", ""),
+            job.get("company", ""),
+            job.get("location", ""),
         )
+    )
 
-        company = " ".join(
-            str(job.get("company", "")).lower().split()
-        )
+    if job_id in seen:
+        continue
 
-        location = " ".join(
-            str(job.get("location", "")).lower().split()
-        )
-
-        snippet = " ".join(
-            str(job.get("snippet", "")).lower().split()
-        )
-
-        job_fingerprint = (
-            title,
-            company,
-            location,
-            snippet,
-        )
-
-        if job_fingerprint in seen:
-            continue
-
-        seen.add(job_fingerprint)
-        unique_jobs.append(job)
+    seen.add(job_id)
+    unique_jobs.append(job)
 
     # Score every unique job.
     scored_jobs = []

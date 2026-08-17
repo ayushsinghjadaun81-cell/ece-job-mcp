@@ -307,24 +307,28 @@ async def search_multiple_jooble(
 
         scored_jobs.append(job)
 
-    # Keep only jobs with meaningful ECE relevance.
-    relevant_jobs = [
-        job
-        for job in scored_jobs
-        if (
-            has_strong_ece_signal(job)
-            and job["relevance_score"] >= 5
-            and job["eligibility_score"] >= 0
+    # Diagnostic: inspect every scored job before filtering.
+    for job in scored_jobs:
+        ece_signal = has_strong_ece_signal(job)
+        relevance_ok = job["relevance_score"] >= 5
+        eligibility_ok = job["eligibility_score"] >= 0
+
+        job["_debug_ece_signal"] = ece_signal
+        job["_debug_relevance_ok"] = relevance_ok
+        job["_debug_eligibility_ok"] = eligibility_ok
+        job["_debug_passes_filter"] = (
+            ece_signal
+            and relevance_ok
+            and eligibility_ok
         )
-    ]
 
     # Highest total score first.
-    relevant_jobs.sort(
+    scored_jobs.sort(
         key=lambda job: job["total_score"],
         reverse=True,
     )
 
-    return relevant_jobs
+    return scored_jobs
 
 
      
